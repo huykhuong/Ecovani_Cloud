@@ -104,7 +104,7 @@ passport.use(User.createStrategy());
 passport.use(new GoogleStrategy({
     clientID:     process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/auth/google/ecovani",
+    callbackURL: "https://ecovaniapparel.herokuapp.com/auth/google/ecovani",
     userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
   },
   function(request, accessToken, refreshToken, profile, done) {
@@ -118,7 +118,7 @@ passport.use(new GoogleStrategy({
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_SECRET,
-    callbackURL: "http://localhost:3000/auth/facebook/ecovani"
+    callbackURL: "https://ecovaniapparel.herokuapp.com/auth/facebook/ecovani"
   },
   function(accessToken, refreshToken, profile, cb) {
     console.log(profile);
@@ -174,11 +174,13 @@ app.post("/register",function(req,res){
 
 //Role-based login
 app.post("/login",function(req,res, next){
+  let errors = [];
   var temp = null;
   User.findOne({username: req.body.username},function(err,user){
-    if(err){
-      console.log(err)
-    }else{
+    if(user == null){
+      errors.push({msg: 'Username does not exist'})
+      res.render("index", {errors: errors});
+    }else if(user != null){
       if(user.role === "admin"){
         temp = "/admin"
       }else if(user.role === "staff"){

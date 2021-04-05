@@ -566,8 +566,8 @@ router.post("/cart/chargeMomo", function(req, res){
     })
     var requestId = uuidv1()
     var orderInfo = "Payment at Ecovani Apparel"
-    var returnUrl = "http://localhost:3000/orders/result"
-    var notifyUrl = "https://45e38aabdb15.ngrok.io/notify"
+    var returnUrl = "https://ecovaniapparel.herokuapp.com/orders/result"
+    var notifyUrl = "https://ecovaniapparel.herokuapp.com/notify"
     var requestType = "captureMoMoWallet"
     var orderId = id
     var extraData = email
@@ -590,8 +590,8 @@ router.post("/cart/chargeMomo", function(req, res){
       amount: total.toString(),
       orderId: id,
       orderInfo: orderInfo,
-      returnUrl: "http://localhost:3000/orders/result",
-      notifyUrl: "https://45e38aabdb15.ngrok.io/notify",
+      returnUrl: "https://ecovaniapparel.herokuapp.com/orders/result",
+      notifyUrl: "https://ecovaniapparel.herokuapp.com/notify",
       extraData: extraData,
       requestType: requestType,
       signature: signature,
@@ -640,8 +640,8 @@ router.post("/cart/chargeMomo", function(req, res){
 //PAYPAL CHARGE
 paypal.configure({
 'mode': 'sandbox', //sandbox or live
-'client_id': 'AYoEdxQ3MeQntn614kfhIXCIvRy5sD4L7CzaoyGKgFuEw1ZMK11lKw9j4yCaDMR7Q_Uz33Sjf_u9LhP8',
-'client_secret': 'EOFnmdN8PxNoKOGipGRJNg0-9t-KDrUAWueQYa-N6SyInCcaQh0WZb-wmfyteTI5i1N6xrXZmV3nC0LY'
+'client_id': process.env.PAYPAL_CLIENT_ID,
+'client_secret': process.env.PAYPAL_CLIENT_SECRET
 });
 
 router.post("/cart/chargePaypal",function(req,res){
@@ -699,8 +699,8 @@ router.post("/cart/chargePaypal",function(req,res){
           "payment_method": "paypal"
       },
       "redirect_urls": {
-          "return_url": "http://localhost:3000/paypal/status/"+id,
-          "cancel_url": "http://localhost:3000/paypal/status/"+id
+          "return_url": "https://ecovaniapparel.herokuapp.com/paypal/status/"+id,
+          "cancel_url": "https://ecovaniapparel.herokuapp.com/paypal/status/"+id
       },
       "transactions": [{
           "item_list": {
@@ -734,7 +734,7 @@ router.post("/cart/chargePaypal",function(req,res){
 function sendEmail(id,email){
   const html = `<h4 class="text-center">Thank you for your purchase</h4>` +
   `<p>Your Order Id is: ` + id + '</p>'+
-  `<p>Please follow the link below to review your order: </p>` + `<a href=http://localhost:3000/order/` + id + `>` + `http://localhost:3000/order/` + id + `</a>`
+  `<p>Please follow the link below to review your order: </p>` + `<a href=https://ecovaniapparel.herokuapp.com/order/` + id + `>` + `https://ecovaniapparel.herokuapp.com/order/` + id + `</a>`
   // create reusable transporter object using the default SMTP transport
     let transporter = nodemailer.createTransport({
       service: 'gmail',

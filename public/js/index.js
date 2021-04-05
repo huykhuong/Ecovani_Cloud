@@ -119,7 +119,7 @@ function resetSortByCategory() {
 }
 
 function resetSort() {
-  localStorage.setItem('sortOptions', "http://localhost:3000/products");
+  localStorage.setItem('sortOptions', "https://ecovaniapparel.herokuapp.com/products");
 }
 
 //Script for Sorting
