@@ -92,7 +92,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //Connect to database
-mongoose.connect("mongodb://localhost:27017/ecovani", {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect("mongodb+srv://admin-huykhuong:ruruhaokeai@cluster0.sq3x0.mongodb.net/ecovani", {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.set("useCreateIndex", true);
 
 //SCHEMA

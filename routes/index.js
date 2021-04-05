@@ -25,7 +25,7 @@ router.get("/", function(req, res) {
   var temp = "";
   Product.find({}).sort({createdAt: -1}).limit(1).exec(function(err,product){
     if(product.length !== 0){
-      temp = product[0].dateCreated.slice(0,10)
+      temp = product[0].dateCreated
     }
   })
   setTimeout(function(){
