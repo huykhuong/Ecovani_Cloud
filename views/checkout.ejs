@@ -1,0 +1,62 @@
+<%- include('partials/indexHeader') %>
+</header>
+
+<main>
+  <% if (typeof cart !== "undefined") { %>
+  <div class="small-container cart-page">
+    <h4>Your cart</h4>
+    <a class="clearcart btn btn-danger" href="/cart/clear">Clear cart</a>
+    <table>
+      <% var total = 0; %>
+      <% cart.forEach(function(product){ %>
+      <% var sub = parseFloat(product.qty * product.price) %>
+      <% total += +sub %>
+      <tr class="cartTableRow">
+        <td style="width:37%;">
+          <div class="cart-info">
+            <img src="<%= product.image %>">
+            <div class="w-50">
+              <p class="checkoutTitle"><%= product.title %></p>
+              <small>Size: <%= product.size %></small>
+            </div>
+          </div>
+        </td>
+        <td class="cartSubInfo" style="width:20%;">
+          <a class="minus-sign" href="/cart/update/<%= product.title %>/<%= product.size %>?action=remove">-</a>&nbsp
+          <p class="qty"><%= product.qty %></p>
+          <a class="plus-sign" href="/cart/update/<%= product.title %>/<%= product.size %>?action=add">+</a>&nbsp;
+          </td>
+        <td class="cartSubInfo" style="width:20%;font-weight:900;"><%= parseFloat(sub).toLocaleString('en-US', {style: 'currency', currency: 'VND'}) %></td>
+        <td class="cartSubInfo" style="width:10%;"><a href="/cart/update/<%= product.title %>/<%= product.size %>?action=clear"><i class="fa fa-times" aria-hidden="true"></i></a></td>
+      </tr>
+      <% }); %>
+    </table>
+
+    <div class="total-price">
+      <table>
+        <tr>
+          <td id="second"><span id="first">Total &nbsp;</span> <%= total.toLocaleString('en-US', {style: 'currency', currency: 'VND'}) %></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="bottom-button">
+      <a id="continueToShopping" href="/products"><i class="fa fa-arrow-left" aria-hidden="true"></i> &nbsp; <span>Continue to Shopping</span></a>
+      <%if(user){%>
+      <a class="btn" href="/cart/payment">Proceed to Checkout &nbsp;<i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+      <%}else{%>
+        <a class="btn" href="/login">Login to continue</a>
+      <%}%>
+    </div>
+
+  </div>
+  <% } else {%>
+    <div class="emptyCart">
+      <img src="/assets/box.png" alt="">
+      <h3 class="text-center">Your cart is empty</h3>
+      <a href="/products" type="button" name="button">Visit our store instead</a>
+    </div>
+  <% } %>
+</main>
+
+<%- include('partials/indexFooter') %>
