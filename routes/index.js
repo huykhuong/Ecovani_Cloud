@@ -477,17 +477,17 @@ router.post("/orders/add", isUser, function(req, res){
 //RECEIVING INSTANT PAYMENT NOTIFICATION FROM PAYPAL SERVICE BY POST REQUEST
 router.post("/notify/paypal",function(req,res){
   if(req.body.payment_status === "Completed"){
-      Order.findOneAndUpdate({_id: req.body.custom[1]}, {paymentStatus: "Paid"}, { useFindAndModify: false }, function(err){
+      Order.findOneAndUpdate({_id: req.body.transactions[0].custom.id}, {paymentStatus: "Paid"}, { useFindAndModify: false }, function(err){
         if(err) console.log(err)
         delete req.session.cart
 
       });
       const eventEmitter = req.app.get('eventEmitter')
       eventEmitter.emit('orderSuccess', {paymentStatus: "Paid"})
-      sendEmail(req.body.custom[1], payment.transactions[0].custom[0])
+      sendEmail(req.body.transactions[0].custom.id, req.body.transactions[0].custom.email)
   }
   else{
-    Order.findOneAndUpdate({_id: req.body.custom[1]}, {paymentStatus: "Failed", deliveryStatus: "Cancelled Order"}, { useFindAndModify: false }, function(err){
+    Order.findOneAndUpdate({_id: req.body.transactions[0].custom.id}, {paymentStatus: "Failed", deliveryStatus: "Cancelled Order"}, { useFindAndModify: false }, function(err){
       if(err) console.log(err)
     });
     const eventEmitter = req.app.get('eventEmitter')
@@ -720,7 +720,7 @@ router.post("/cart/chargePaypal",function(req,res){
               "total": (total*0.000043).toString()
           },
           "description": "Payment at Ecovani Apparel",
-          "custom": [email,id]
+          "custom": {"email": email, "id": id}
       }]
   };
 
