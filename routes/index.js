@@ -341,6 +341,7 @@ router.get('/paypal/status/:id', function(req, res) {
           orderId: req.params.id,
           status: "success"
         })
+        sendEmail(req.params.id, payment.transactions[0].description)
     }
   });
 });
@@ -478,17 +479,16 @@ router.post("/orders/add", isUser, function(req, res){
 router.post("/notify/paypal",function(req,res){
   console.log(req.body)
   if(req.body.payment_status === "Completed"){
-      Order.findOneAndUpdate({_id: req.body.transactions[0].description}, {paymentStatus: "Paid"}, { useFindAndModify: false }, function(err){
+      Order.findOneAndUpdate({_id: req.body.custom}, {paymentStatus: "Paid"}, { useFindAndModify: false }, function(err){
         if(err) console.log(err)
         delete req.session.cart
 
       });
       const eventEmitter = req.app.get('eventEmitter')
       eventEmitter.emit('orderSuccess', {paymentStatus: "Paid"})
-      sendEmail(req.body.transactions[0].description, req.body.transactions[0].custom)
   }
   else{
-    Order.findOneAndUpdate({_id: req.body.transactions[0].description}, {paymentStatus: "Failed", deliveryStatus: "Cancelled Order"}, { useFindAndModify: false }, function(err){
+    Order.findOneAndUpdate({_id: req.body.custom}, {paymentStatus: "Failed", deliveryStatus: "Cancelled Order"}, { useFindAndModify: false }, function(err){
       if(err) console.log(err)
     });
     const eventEmitter = req.app.get('eventEmitter')
@@ -720,8 +720,8 @@ router.post("/cart/chargePaypal",function(req,res){
               "currency": "USD",
               "total": (total*0.000043).toString()
           },
-          "description": id,
-          "custom": email
+          "description": email,
+          "custom": id
       }]
   };
 
