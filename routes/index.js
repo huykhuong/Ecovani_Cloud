@@ -476,6 +476,7 @@ router.post("/orders/add", isUser, function(req, res){
 
 //RECEIVING INSTANT PAYMENT NOTIFICATION FROM PAYPAL SERVICE BY POST REQUEST
 router.post("/notify/paypal",function(req,res){
+  console.log(req.body)
   if(req.body.payment_status === "Completed"){
       Order.findOneAndUpdate({_id: req.body.transactions[0].description}, {paymentStatus: "Paid"}, { useFindAndModify: false }, function(err){
         if(err) console.log(err)
