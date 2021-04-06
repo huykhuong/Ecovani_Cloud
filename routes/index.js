@@ -482,6 +482,9 @@ router.post("/orders/add", isUser, function(req, res){
 
 //RECEIVING INSTANT PAYMENT NOTIFICATION FROM PAYPAL SERVICE BY POST REQUEST
 router.post("/notify/paypal",function(req,res){
+  if(req.body.payment_status === "Completed"){
+
+  }
   console.log("Eyyo")
   if(!req){
     console.log("vcl")
@@ -705,7 +708,7 @@ router.post("/cart/chargePaypal",function(req,res){
       },
       "redirect_urls": {
           "return_url": "https://ecovaniapparel.herokuapp.com/paypal/status/"+id,
-          "cancel_url": "https://ecovaniapparel.herokuapp.com/paypal/status/"+id
+          "cancel_url": "https://ecovaniapparel.herokuapp.com/notify/paypal/"
       },
       "transactions": [{
           "item_list": {
