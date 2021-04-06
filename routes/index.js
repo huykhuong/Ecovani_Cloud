@@ -304,7 +304,7 @@ router.get("/orders", isUser, function(req, res) {
 });
 
 //GET PAYMENT STATUS PAGE FOR PAYPAL
-router.get('/paypal/status/:id', (req, res) => {
+router.get('/paypal/status/:id', function(req, res) {
   var cart = req.session.cart;
   var total = 0;
   var sub = 0;
@@ -326,6 +326,9 @@ router.get('/paypal/status/:id', (req, res) => {
   };
 
   paypal.payment.execute(paymentId, execute_payment_json, function (error, payment) {
+    //Paypal asks the developer to specify a dedicated return url in case the payment process is cancelled halfway and in this case, Paypal will not send a notification
+    // to my server but instead it takes the buyer to the url that has been specified earlier using the GET request therefore for every payment that is cancelled, I want to
+    // update the payment status as "failed" and have to do it here at this GET route rather than the notify post route.
     if (error) {
        res.render('paymentStatus',{status:"failed"});
        Order.findOneAndUpdate({_id : req.params.id}, {paymentStatus: "Failed", deliveryStatus: "Cancelled Order"}, { useFindAndModify: false }, function(err){
@@ -333,20 +336,11 @@ router.get('/paypal/status/:id', (req, res) => {
        });
        const eventEmitter = req.app.get('eventEmitter')
        eventEmitter.emit('orderFailed',{paymentStatus: "Failed", deliveryStatus: "Cancelled Order"})
-    } else {
-      Order.findOneAndUpdate({_id: req.params.id}, {paymentStatus: "Paid"}, { useFindAndModify: false }, function(err){
-        if(err) console.log(err)
-        delete req.session.cart
-        setTimeout(function(){
-          res.render("paymentStatus", {
-            orderId: req.params.id,
-            status: "success"
-          })
-        },100)
-      });
-      const eventEmitter = req.app.get('eventEmitter')
-      eventEmitter.emit('orderSuccess', {paymentStatus: "Paid"})
-      sendEmail(req.params.id, payment.transactions[0].custom)
+    }else{
+        res.render("paymentStatus", {
+          orderId: req.params.id,
+          status: "success"
+        })
     }
   });
 });
@@ -483,14 +477,21 @@ router.post("/orders/add", isUser, function(req, res){
 //RECEIVING INSTANT PAYMENT NOTIFICATION FROM PAYPAL SERVICE BY POST REQUEST
 router.post("/notify/paypal",function(req,res){
   if(req.body.payment_status === "Completed"){
+      Order.findOneAndUpdate({_id: req.body.custom[1]}, {paymentStatus: "Paid"}, { useFindAndModify: false }, function(err){
+        if(err) console.log(err)
+        delete req.session.cart
 
-  }
-  console.log("Eyyo")
-  if(!req){
-    console.log("vcl")
+      });
+      const eventEmitter = req.app.get('eventEmitter')
+      eventEmitter.emit('orderSuccess', {paymentStatus: "Paid"})
+      sendEmail(req.body.custom[1], payment.transactions[0].custom[0])
   }
   else{
-    console.log(req.body)
+    Order.findOneAndUpdate({_id: req.body.custom[1]}, {paymentStatus: "Failed", deliveryStatus: "Cancelled Order"}, { useFindAndModify: false }, function(err){
+      if(err) console.log(err)
+    });
+    const eventEmitter = req.app.get('eventEmitter')
+    eventEmitter.emit('orderFailed',{paymentStatus: "Failed", deliveryStatus: "Cancelled Order"})
   }
 });
 
@@ -708,7 +709,7 @@ router.post("/cart/chargePaypal",function(req,res){
       },
       "redirect_urls": {
           "return_url": "https://ecovaniapparel.herokuapp.com/paypal/status/"+id,
-          "cancel_url": "https://ecovaniapparel.herokuapp.com/notify/paypal/"
+          "cancel_url": "https://ecovaniapparel.herokuapp.com/paypal/status/"+id
       },
       "transactions": [{
           "item_list": {
@@ -719,7 +720,7 @@ router.post("/cart/chargePaypal",function(req,res){
               "total": (total*0.000043).toString()
           },
           "description": "Payment at Ecovani Apparel",
-          "custom": email
+          "custom": [email,id]
       }]
   };
 
@@ -735,7 +736,7 @@ router.post("/cart/chargePaypal",function(req,res){
           }
         }
     });
-  },200)
+  },300)
 });
 
 //Function to send email to the buyer when a purchase is successfully made
