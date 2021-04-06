@@ -482,12 +482,13 @@ router.post("/orders/add", isUser, function(req, res){
 
 //RECEIVING INSTANT PAYMENT NOTIFICATION FROM PAYPAL SERVICE BY POST REQUEST
 router.post("/notify/paypal",function(req,res){
+  console.log("Eyyo")
   if(!req){
     console.log("vcl")
   }
   else{
     console.log(req.body)
-  }  
+  }
 });
 
 
