@@ -23,7 +23,7 @@ var Order = require('../models/order');
 //Get home page and fetch new arrival products
 router.get("/", function(req, res) {
   var temp = "";
-  Product.find({}).sort({createdAt: -1}).limit(1).exec(function(err,product){
+  Product.find({}).sort({_id: -1}).limit(1).exec(function(err,product){
     if(product.length !== 0){
       temp = product[0].dateCreated
     }
