@@ -176,28 +176,32 @@ app.post("/register",function(req,res){
 app.post("/login",function(req,res, next){
   let errors = [];
   var temp = null;
-  User.findOne({username: req.body.username},function(err,user){
-    if(user == null){
-      errors.push({msg: 'Username does not exist'})
-      res.render("index", {errors: errors});
-    }else if(user != null){
-      if(user.role === "admin"){
-        temp = "/admin"
-      }else if(user.role === "staff"){
-        temp = "/staff"
+  if(!req.body.username){
+
+  }else{
+    User.findOne({username: req.body.username},function(err,user){
+      if(user == null){
+        errors.push({msg: 'Username does not exist'})
+        res.render("index", {errors: errors});
+      }else if(user != null){
+        if(user.role === "admin"){
+          temp = "/admin"
+        }else if(user.role === "staff"){
+          temp = "/staff"
+        }
+        else{
+          temp = "/"
+        }
       }
-      else{
-        temp = "/"
-      }
-    }
-  })
+    })
+  }
   setTimeout(function(){
     passport.authenticate("local", {
       successRedirect: temp,
       failureRedirect: '/login',
       failureFlash: true
     })(req,res,next)
-  }, 1000)
+  }, 2000)
 });
 
 //Provide the user's info of a logged in session to use globally in all ejs files (view files)
