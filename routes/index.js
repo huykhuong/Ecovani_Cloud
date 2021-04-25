@@ -699,7 +699,7 @@ router.post("/cart/chargePaypal",function(req,res){
   }).limit(1).exec(function(err, order){
     id = order[0]._id
   })
-  },100)
+},1000)
 
   setTimeout(function(){
     var create_payment_json = {
@@ -727,7 +727,7 @@ router.post("/cart/chargePaypal",function(req,res){
 
     paypal.payment.create(create_payment_json, function (error, payment) {
       if (error) {
-            throw error;
+            console.log(error)
         } else {
           for(let i = 0;i < payment.links.length;i++){
             if(payment.links[i].rel === 'approval_url'){
@@ -736,7 +736,7 @@ router.post("/cart/chargePaypal",function(req,res){
           }
         }
     });
-  },300)
+  },3000)
 });
 
 //Function to send email to the buyer when a purchase is successfully made
